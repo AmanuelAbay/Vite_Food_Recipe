@@ -1,0 +1,20 @@
+query FetchFoods {
+    foods {
+      id
+      title
+      description
+      category
+      duration
+      user {
+        name
+      }
+      likes_aggregate {
+        aggregate {
+          count
+        }
+      }
+      images {
+        path
+      }
+    }
+  }

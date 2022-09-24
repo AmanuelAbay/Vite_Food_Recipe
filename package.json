@@ -1,0 +1,46 @@
+{
+  "name": "food-recepie-vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "nodemon ./server/server.js"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.6.9",
+    "@vee-validate/rules": "^4.6.7",
+    "@vue/apollo-composable": "^4.0.0-alpha.19",
+    "@vuelidate/core": "^2.0.0-alpha.44",
+    "@vuelidate/validators": "^2.0.0-alpha.31",
+    "@vueuse/core": "^9.2.0",
+    "apollo-link": "^1.2.14",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.0",
+    "cloudinary": "^1.31.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.2",
+    "express": "^4.18.1",
+    "graphql": "^16.6.0",
+    "graphql-tag": "^2.12.6",
+    "jsonwebtoken": "^8.5.1",
+    "nodemon": "^2.0.19",
+    "vee-validate": "^4.5.8",
+    "vite-svg-loader": "^3.6.0",
+    "vue": "^3.2.37",
+    "vue-router": "^4.1.5",
+    "vue-star-rating": "^2.1.0",
+    "vuex": "^4.0.2",
+    "yup": "^0.32.11"
+  },
+  "devDependencies": {
+    "@rollup/plugin-graphql": "^1.1.0",
+    "@vitejs/plugin-vue": "^3.1.0",
+    "autoprefixer": "^10.4.8",
+    "postcss": "^8.4.16",
+    "tailwindcss": "^3.1.8",
+    "vite": "^3.1.0"
+  }
+}

@@ -1,0 +1,7 @@
+mutation addingFood($title:String!,$category: String!, $description: String!, $duration: String!, $steps: [steps_insert_input!]!, $ingredients: [ingredients_insert_input!]!, $images_url: [images_insert_input!]!) {
+  insert_foods(objects: {category: $category, description: $description, duration: $duration, steps: {data: $steps}, title: $title, ingredients: {data: $ingredients}, images: {data: $images_url}}) {
+    returning {
+      id
+    }
+  }
+}

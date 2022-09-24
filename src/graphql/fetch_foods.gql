@@ -1,0 +1,26 @@
+  query FetchFoods($user_id: Int!) {
+    foods {
+      id
+      title
+      description
+      category
+      duration
+      user {
+        name
+      }
+      likes_aggregate {
+        aggregate {
+          count
+        }
+      }
+      favorites {
+        favorite_user_id
+      }
+      likes(where: { like_user_id: { _eq: $user_id } }) {
+        like_user_id
+      }
+      images {
+        path
+      }
+    }
+  }

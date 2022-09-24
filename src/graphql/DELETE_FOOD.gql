@@ -1,0 +1,17 @@
+mutation delted_food($food_id: Int!) {
+    delete_steps(where: {food_id: {_eq: $food_id}}) {
+    affected_rows
+  }
+    delete_ingredients(where: {food_id: {_eq: $food_id}}) {
+    affected_rows
+  }
+    delete_images(where: {food_id: {_eq: $food_id}}) {
+    affected_rows
+  }
+  ## and finally deleting the food
+  delete_foods(where: {id: {_eq: $food_id}}) {
+    returning {
+      id
+    }
+  }
+}

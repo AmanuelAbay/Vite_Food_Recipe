@@ -1,0 +1,8 @@
+mutation delete_ingredients($id:Int!) {
+  delete_ingredients(where: {id: {_eq: $id}}) {
+    returning {
+      id
+      name
+    }
+  }
+}
