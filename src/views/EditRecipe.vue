@@ -12,23 +12,46 @@ import Ingredients from "../components/cards/Ingredients.vue";
 import Steps from "../components/cards/Steps.vue";
 import { useRoute } from "vue-router";
 import MainLayout from '../components/layouts/MainLayout.vue';
-import { useQuery } from "@vue/apollo-composable";
+import { useMutation, useQuery } from "@vue/apollo-composable";
+import { ToastProgrammatic as Toast } from 'buefy'
 
 export default {
     setup() {
+        // Toast.open('Toasty!')
         const router = useRoute();
         const food = ref(null);
-        const steps = ref(null);
+        const steps = ref(null)
+        const id = ref(router.params.id);
         const ingredients = ref(null);
+        const error = ref(null);
         const { onResult } = useQuery(
             SELECTED_FOOD,
             () => ({
-                food_id: router.params.id
+                food_id: id.value
+            }),
+            () => ({
+                fetchPolicy: 'no-cache'
             })
         );
 
+        const { onDone, mutate } = useMutation(
+            EDIT_FOOD
+        );
+
+        onDone(() => {
+            console.log("")
+            // $toast.success('edited successfully!!.', {
+            //     // optional options Object
+            // })
+            // $buefy.toast.open({
+            //     message: 'Something happened correctly!',
+            //     type: 'is-success'
+            // })
+            location.replace("/my_foods");
+        })
+
         onResult(({ data }) => {
-            console.log(data)
+            // console.log(data)
             food.value = data.foods;
             food.value = data.foods[0];
             steps.value = food.value.steps;
@@ -46,7 +69,7 @@ export default {
         }
 
         return {
-            food, deleteStep, steps, ingredients, deleteIngredient
+            food, deleteStep, steps, ingredients, deleteIngredient, mutate, error
         }
     },
     methods: {
@@ -58,19 +81,15 @@ export default {
             if (!(description === null)) {
                 if (!(title === null))
                     if (!(duration === null)) {
-                        useMutation(
-                            EDIT_FOOD,
-                            () => (
-                                {
-                                    category: category,
-                                    description: description,
-                                    duration: duration,
-                                    title: title,
-                                    id: this.$route.params.id
-                                }
-                            )
-                        );
-                        location.replace("/my_foods");
+                        this.mutate(
+                            {
+                                category: category,
+                                description: description,
+                                duration: duration,
+                                title: title,
+                                id: this.$route.params.id
+                            }
+                        )
                     }
             }
             else

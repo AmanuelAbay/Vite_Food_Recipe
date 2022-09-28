@@ -1,5 +1,6 @@
 mutation uploadImage($image: [String]!, $folder: String!) {
   upload(folder: $folder, image: $image) {
+    image_status
     path
   }
 }

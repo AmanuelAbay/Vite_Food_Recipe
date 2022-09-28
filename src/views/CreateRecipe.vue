@@ -12,9 +12,7 @@ export default {
         const error_ingredient_amount = ref(false);
         const steps = ref([]);
         const step = ref('');
-        // const step = ref(null)
         const ingredients = ref([]);
-        // const ingredients = []
         const ingredientName = ref('');
         const images = ref([]);
         const images_url = ref([]);
@@ -23,6 +21,7 @@ export default {
         const image_error = ref(false);
         const ingredient_error = ref(false);
         const loading = ref(false);
+        const global_error = ref(null);
 
         const state = reactive({
             title: '',
@@ -39,7 +38,9 @@ export default {
                 duration: { required }
             }
         });
+
         const v$ = useValidate(rules, state);
+
         const addSteps = () => {
             if (!(step.value === null || step.value.trim() === '')) {
                 let add_step = { step_number: steps.value.length + 1, description: step.value.replace(/\n/g, '') }
@@ -57,6 +58,7 @@ export default {
             }
             reader.readAsDataURL(ImageObject);
         }
+
         const fileUpload = (event) => {
             image_error.value = false;
             const selectedImages = event.target.files;
@@ -64,20 +66,28 @@ export default {
                 createBase64Image(selectedImages[i]);
             }
         }
-        const { onDone, mutate, onError:UploadFail } = useMutation(
+
+        const { onDone, mutate, onError } = useMutation(
             UPLOAD_IMAGE
         );
+
+        onError(() => {
+            loading.value = false;
+            console.log("please check you network connection");
+        });
 
         const { onDone: RecipeDone, mutate: addRecipe } = useMutation(
             ADD_FOODS
         )
-        RecipeDone(({ data }) => {
-            this.loading = false
-            console.log("done")
+        RecipeDone(() => {
+            loading.value = false;
+            location.replace("/my_foods");
         })
 
-        onDone(({ data: { upload: { uploaded_images } } }) => {
-            console.log("creating recipe..")
+        onDone(({ data: { upload } }) => {
+            console.log(upload);
+            console.log("image uploaded!!");
+            console.log("creating recipe..");
             addRecipe({
                 title: state.title,
                 steps: steps.value,
@@ -85,16 +95,17 @@ export default {
                 category: state.category,
                 description: state.description,
                 duration: state.duration.toString(),
-                images_url: uploaded_images
+                images_url: upload
             })
-            // location.replace("/my_foods");
+            // // location.replace("/my_foods");
         })
 
-        UploadFail(()=>{
-            //TODO: toast notification for image upload
-        })
+        // UploadFail(() => {
+        //TODO: toast notification for image upload
+        // })
         const storePath = () => {
-            console.log("start creating...");
+            // console.log("start creating...");
+            // console.log(images.value);
             mutate({
                 folder: "Images",
                 image: images.value,
@@ -104,29 +115,28 @@ export default {
 
 
         return {
-            state, loading, storePath, image_error, ingredient_error, createBase64Image, isStepNull, fileUpload, v$, steps, addSteps, ingredients, ingredientName, error_ingredient_amount, error_ingredient_name, images, images_url, amount, step
+            state, global_error, loading, storePath, image_error, ingredient_error, createBase64Image, isStepNull, fileUpload, v$, steps, addSteps, ingredients, ingredientName, error_ingredient_amount, error_ingredient_name, images, images_url, amount, step
         }
     },
     methods: {
         submitForm() {
-            this.storePath()
-            // this.v$.$validate();
-            // if (!this.v$.$error) {
-            //     if (this.ingredients.length > 0) {
-            //         if (this.steps.length > 0) {
-            //             if (this.images.length > 0) {
-            //                 this.loading = true
-            //                 this.storePath()
-            //             }
-            //             else this.image_error = true;
-            //         }
-            //         else this.isStepNull = true;
-            //     }
-            //     else this.ingredient_error = true;
-            // } else {
-            //     // show error message
-            //     console.log("please fill the form correctly!!");
-            // }
+            // this.storePath()
+            this.v$.$validate();
+            if (!this.v$.$error) {
+                if (this.ingredients.length > 0) {
+                    if (this.steps.length > 0) {
+                        if (this.images.length > 0) {
+                            this.loading = true
+                            this.storePath()
+                        }
+                        else this.image_error = true;
+                    }
+                    else this.isStepNull = true;
+                }
+                else this.ingredient_error = true;
+            } else {
+                console.log("please fill the form correctly!!");
+            }
         },
         addIngredients() {
             if (!(ingredientName.value === null || ingredientName.value.trim() === '')) {

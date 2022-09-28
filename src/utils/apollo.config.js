@@ -16,6 +16,7 @@ const default_auth_link = new ApolloLink((operation, forward) => {
   const h = {
     ...headers,
   };
+
   if (LoggedIn) {
     h.authorization = `Bearer ${token}`;
   }
@@ -29,9 +30,10 @@ const default_auth_link = new ApolloLink((operation, forward) => {
 const cache = new InMemoryCache({
   addTypename: false,
 });
+
 const apolloClient = new ApolloClient({
   link: from([default_auth_link, httpLink]),
   cache,
 });
 
-export { apolloClient};
+export { apolloClient };

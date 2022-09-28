@@ -2,9 +2,10 @@
 import { onMounted } from "vue";
 import add from "../../assets/icons/add.svg";
 import logout from "../../assets/icons/logout.svg";
+import { LoggedIn } from "../../utils/user";
 
 const Loggedout = () => {
-    console.log("loggedout");
+    // console.log("loggedout");
     localStorage.removeItem("token");
     localStorage.removeItem("user_id");
     location.replace("/login");
@@ -54,7 +55,7 @@ const Loggedout = () => {
                     </svg>
                 </router-link>
             </li>
-            <li>
+            <li v-if="LoggedIn">
                 <div @click="Loggedout" to="/login" class="px-3 flex justify-end cursor-pointer">
                     <span>Log Out</span>
                     <logout class="ml-2" />

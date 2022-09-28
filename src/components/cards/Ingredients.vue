@@ -17,21 +17,26 @@ export default {
         const ingredient_amount = ref(props.ingredient.amount);
         const error = ref(false);
         const toggleUp = ref(true);
+        const { mutate: updateIngredientMutate, onDone: updateDone } = useMutation(
+            UPDATE_INGREDIENT
+        );
+
+        updateDone(() => {
+            console.log("update done!!");
+        })
 
         const updateIngredient = (id) => {
             if (!(ingredient_amount.value === null) && !(ingredient_name.value == null || ingredient_name.value.trim() === '')) {
-                useMutation(
-                    UPDATE_INGREDIENT,
-                    () => ({
-                        id: id,
-                        name: ingredient_name.value,
-                        amount: ingredient_amount.value
-                    }),
-                );
+                updateIngredientMutate({
+                    id: id,
+                    name: ingredient_name.value,
+                    amount: ingredient_amount.value
+                })
                 error.value = false
             }
             else error.value = true
         }
+
         const deleteIngredient = (id) => {
             useMutation(
                 DELETE_INGREDIENT,

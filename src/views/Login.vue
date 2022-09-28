@@ -5,15 +5,21 @@ import LOGIN from "../graphql/login.gql";
 import useValidate from '@vuelidate/core';
 import { required } from '@vuelidate/validators';
 import TopNav from '../components/Nav/TopNav.vue';
+import { useMutation } from '@vue/apollo-composable';
 
 export default {
     setup() {
         const loading = ref(false);
         const error = ref(null);
+        const message = ref(null);
+        const authError = ref(false);
         const user = reactive({
             email: '',
             password: ''
         });
+        let { onDone, onError, mutate } = useMutation(
+            LOGIN
+        );
 
         const rules = computed(() => {
             return {
@@ -21,55 +27,52 @@ export default {
                 password: { required }
             }
         });
+
         const v$ = useValidate(rules, user);
+
+        onDone(({ data }) => {
+            if (data.login && data.login.token) {
+                let claims = data.login.token.split(".")[1];
+                let d = JSON.parse(window.atob(claims));
+                d["https://hasura.io/jwt/claims"].accessToken = data.login.token;
+
+                localStorage.removeItem("token");
+                localStorage.removeItem("user_id");
+                // const state = useStorage("session", d["https://hasura.io/jwt/claims"]);
+                localStorage.setItem("token", data.login.token);
+                localStorage.setItem("user_id", data.login.id);
+                // set(state.value);
+                // this.$router.go(-1);
+                // this.loading = false
+                location.replace("/");
+            }
+            else {
+                loading.value = false;
+                authError.value = true;
+                message.value = "authentication error!!";
+
+            }
+        })
+        onError((error) => {
+            error.value = "something is wrong!";
+        })
 
 
         return {
-            v$, user
+            v$, user, mutate, message, error, authError
         }
     },
     methods: {
         login() {
             this.v$.$validate();
             if (!this.v$.$error) {
-
-                let { onDone, onError } = useMutation(
-                    LOGIN,
-                    () => ({ "email": this.user.email, "password": this.user.password }),
-                );
-                onDone(({ data }) => {
-                    if (data.login && data.login.token) {
-                        let claims = data.login.token.split(".")[1];
-                        let d = JSON.parse(window.atob(claims));
-                        console.log(data.login.token);
-                        d["https://hasura.io/jwt/claims"].accessToken = data.login.token;
-
-                        localStorage.removeItem("token");
-                        localStorage.removeItem("user_id");
-                        // const state = useStorage("session", d["https://hasura.io/jwt/claims"]);
-                        localStorage.setItem("token", data.login.token);
-                        localStorage.setItem("user_id", data.login.id);
-                        // set(state.value);
-                        // this.$router.go(-1);
-                        // this.loading = false
-                        location.replace("/");
-                    }
-                    else {
-                        this.loading = false
-                        this.authError = true;
-                        this.message = user.data.login.message
-                    }
-                })
-
+                this.mutate({ "email": this.user.email, "password": this.user.password });
             }
-            onError((error) => {
-                error.value = "invalid form";
-            })
             // else error.value = "Invalid form"
-    }
-},
-components: {
-    TopNav,
+        }
+    },
+    components: {
+        TopNav,
     }
 }
 </script>
@@ -101,11 +104,11 @@ components: {
                         <ErrorMessage class="text-red-600" name="password" />
                     </div>
 
-                    <!-- <div v-if="authError" class="flex justify-start items-center">
-                            <font-awesome-icon icon="exclamation-circle" class="text-red-900 text-base ml-5 mr-3">
-                            </font-awesome-icon>
-                            <p class="text-red-900 text-base font-bold">{{message}}</p>
-                        </div> -->
+                    <div v-if="authError" class="flex justify-start items-center">
+                        <font-awesome-icon icon="exclamation-circle" class="text-red-900 text-base ml-5 mr-3">
+                        </font-awesome-icon>
+                        <p class="text-red-900 text-base font-bold">{{message}}</p>
+                    </div>
 
                     <button type="submit" :disabled="loading"
                         class="flex flex-col items-center w-full bg-primary p-3 rounded text-white hover:bg-orange-700 transition duration-300">

@@ -1,61 +1,84 @@
-<script setup>
+<script>
 import { ref, reactive, computed } from 'vue';
 import useValidate from '@vuelidate/core';
 import { useMutation } from '@vue/apollo-composable';
 import SIGNUP from '@/graphql/signup.gql';
+import { required } from '@vuelidate/validators';
+import TopNav from '../components/Nav/TopNav.vue';
 
-const loading = ref(false);
-const error = ref(null);
-const user = reactive({
-    firstname: '',
-    lastname: '',
-    email: '',
-    phone_number: '',
-    password: '',
-    confirmPassword: ''
-});
-
-let { onDone, onError, mutate } = useMutation(
-    SIGNUP
-);
-
-onDone(({ data }) => {
-    console.log("data from server");
-    console.log(data);
-})
-
-const rules = computed(() => {
-    return {
-
-        // TODO: FORM MUST BE CHECK THE PASSWORD AND CONFIRM PASSWORD FIELD TO BE EQUAL
-        firstname: { required },
-        lastname: { required },
-        email: { required },
-        phone_number: { required },
-        password: { required },
-        confirmPassword: { required }
-    }
-});
-const v$ = useValidate(rules, user);
-
-const signup = () => {
-
-    // checking forms
-    v$.$validate();
-
-    if (!v$.$error) {
-        // register user
-        error.value = null;
-        mutate({ "name": user.firstname + " " + user.lastname, "email": user.email, "phone_number": user.phone_number, "password": user.password })
-    }
-    else {
-        error.value = "Form error";
-    }
+export default {
+    setup() {
+        const loading = ref(false);
+        const error = ref(null);
+        const user = reactive({
+            firstname: "",
+            lastname: "",
+            email: "",
+            phone_number: "",
+            password: "",
+            confirmPassword: ""
+        });
+        let { onDone, onError, mutate } = useMutation(SIGNUP);
+        onDone(({ data: { register } }) => {
+            if (!register.status) {
+                error.value = register.message;
+            }
+            else {
+                error.value = null;
+                //remove current user
+                localStorage.removeItem("token");
+                localStorage.removeItem("user_id");
+                // reset newly registerd user
+                localStorage.setItem("token", register.token);
+                localStorage.setItem("user_id", register.id);
+                location.replace("/");
+            }
+        });
+        const rules = computed(() => {
+            return {
+                // TODO: FORM MUST BE CHECK THE PASSWORD AND CONFIRM PASSWORD FIELD TO BE EQUAL
+                firstname: { required },
+                lastname: { required },
+                email: { required },
+                phone_number: { required },
+                password: { required },
+                confirmPassword: { required }
+            };
+        });
+        const v$ = useValidate(rules, user);
+        return {
+            v$,
+            user,
+            error,
+            loading,
+            onDone,
+            onError,
+            mutate
+        };
+    },
+    methods: {
+        signup() {
+            console.log("signup is called");
+            // checking forms
+            this.v$.$validate();
+            if (!this.v$.$error) {
+                // register user
+                this.error = null;
+                // console.log(this.user);
+                this.mutate({ "name": this.user.firstname + " " + this.user.lastname, "email": this.user.email, "phone_number": this.user.phone_number, "password": this.user.password });
+            }
+            else {
+                this.error = "Fill The Form Correctly!";
+            }
+        }
+    },
+    components: { TopNav }
 }
 
 </script>
 
 <template>
+    <TopNav />
     <div class="md:grid md:grid-cols-2 md:gap-6 mb-10">
         <div class="col-span-1">
             <img src="../assets/img/sign_up.png" alt="Sign Up">

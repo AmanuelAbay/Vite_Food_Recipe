@@ -8,46 +8,69 @@ import FETCHING_FOOD from "@/graphql/_foods.gql";
 import FILTER_FOODS from "@/graphql/FILTER_FOOD.gql";
 // import apolloClient from "../utils/apollo.config.js";
 import { useQuery } from '@vue/apollo-composable';
-import { LoggedIn, token, userId } from "../utils/user.js";
+import { LoggedIn, userId } from "../utils/user.js";
 
 const foods = ref([]);
 const store = useStore()
 const category = computed(() => store.state.category);
-const enabled = ref(undefined);
+const filter_all = ref(true);
 
-// const { onResult } = useQuery(
-//     FILTER_FOODS,
-//     () => ({
-//         user_id: userId,
-//         category: newValue
-//     }),
-//     ()=>({
-//         enabled: enabled.value
-//     })
+const { onResult, loading, error } = useQuery(
+    FILTER_FOODS,
+    () => ({
+        user_id: userId,
+        category: category.value
+    }),
+    () => ({
+        enabled: !filter_all.value,
+        fetchPolicy: 'no-cache'
+    })
 
-// )
+)
 
-// onResult(({ data }) => {
-//     foods.value = data.foods
-// })
+const { onResult: FilterAll, loading: filterallloading, error: filterallerror, refetch: filterallrefetch } = useQuery(
+    FETCHING_FOODS,
+    () => ({
+        user_id: userId
+    }),
+    () => ({
+        enabled: filter_all.value,
+        fetchPolicy: 'no-cache'
+    })
+);
 
-// watch(category, async (newValue, oldValue) => {
-//     console.log(newValue);
-//     if (newValue != "all") {
-        
-//     }
-//     else {
-//         const { onResult } = useQuery(
-//             FETCHING_FOODS,
-//             () => ({
-//                 user_id: userId
-//             })
-//         );
-//         onResult(({ data }) => {
-//             foods.value = data.foods
-//         })
-//     }
-// }, { immediate: true })
+FilterAll(({ data }) => {
+    foods.value = data.foods
+})
+
+onResult(({ data }) => {
+    foods.value = data.foods
+})
+
+watch(category, async (newValue, oldValue) => {
+    console.log(category.value);
+    if (category.value == "all") {
+        filter_all.value = true;
+    }
+    else {
+        filter_all.value = false;
+    }
+
+    // if (newValue != "all") {
+
+    // }
+    // else {
+    //     const { onResult } = useQuery(
+    //         FETCHING_FOODS,
+    //         () => ({
+    //             user_id: userId
+    //         })
+    //     );
+    //     onResult(({ data }) => {
+    //         foods.value = data.foods
+    //     })
+    // }
+}, { immediate: true })
 
 if (LoggedIn) {
     const { onResult } = useQuery(
@@ -88,7 +111,7 @@ else {
     <MainLayout>
         <div>
 
-            <body class="pr-5 pl-14 bg-main_background min-h-screen">
+            <body class="pr-5 pl-14 bg-main_background min-h-screen pb-5">
                 <div class="pt-6">
                     <h4 class="text-secondary-900 text-4xl font-bold border-b border-secondary pb-2">Foods</h4>
                 </div>

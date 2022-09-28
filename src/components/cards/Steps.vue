@@ -1,6 +1,6 @@
 <script>
 import UPDATE_STEP from "../../graphql/UPDATE_STEP.gql"
-import DELETE_STEP from "../../graphql/DELETE_STEP.js"
+import DELETE_STEP from "../../graphql/DELETE_STEP.gql"
 // import apolloClient from "../../utils/apollo.config";
 import { useMutation } from "@vue/apollo-composable";
 import { ref } from "vue";
@@ -15,29 +15,38 @@ export default {
         const toggleUp = ref(true);
         const error = ref(false);
         const step_description = ref(props.step.description);
+        const { onDone: updateStepDone, mutate: updateStepMutate } = useMutation(
+            UPDATE_STEP
+        );
+        const { onDone: StepDeleteDone, mutate: StepDeleteMutate } = useMutation(
+            DELETE_STEP
+        );
+
+        StepDeleteDone(() => {
+            emit("deleteStep", id);
+            console.log("step delete successfully!!");
+        })
+
+        updateStepDone(() => {
+            error.value = false;
+            console.log("Successfully updated");
+        })
+
         const updateStep = (id) => {
             if (!(step_description === null)) {
-                useMutation(
-                    UPDATE_STEP,
-                    () => ({
-                        id: id,
-                        description: step_description.value
-                    }),
-                );
-                error.value = false
-                console.log("Successfully changed")
+                // mutate for update step
+                updateStepMutate({
+                    id: id,
+                    description: step_description.value
+                })
             }
             else error.value = true
         }
         const deleteStep = (id) => {
             // confirmation will be requested
-            useMutation(
-                DELETE_STEP,
-                () => (
-                    { id: id }
-                )
-            );
-            emit("deleteStep", id);
+            StepDeleteMutate(
+                { id: id }
+            )
         }
 
         return {

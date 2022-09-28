@@ -28,14 +28,14 @@ const isLiked = LoggedIn ? ref(props.food.likes.length > 0) : ref(false);
 // if not fill the color to normal bg and send data to db
 
 // }
-const { onDone ,mutate} = useMutation(
+const { onDone, mutate } = useMutation(
     DELETE_FOOD,
 );
 
 const DeleteFood = (id) => {
-mutate({
-food_id:id
-})
+    mutate({
+        food_id: id
+    })
 
 }
 
@@ -45,56 +45,66 @@ onDone(() => {
 const fav_icon = (id) => {
     // check if it was in the favorite list
     //TODO: delete tttttt
-    if (isFav.value) {
-        apolloClient.mutate(
-            {
-                mutation: UNFAV,
-                variables: {
-                    food_id: id
+
+    if (LoggedIn) {
+        if (isFav.value) {
+            apolloClient.mutate(
+                {
+                    mutation: UNFAV,
+                    variables: {
+                        food_id: id
+                    }
                 }
-            }
-        );
-        isFav.value = false;
-        emit("removeFavorite", id)
+            );
+            isFav.value = false;
+            emit("removeFavorite", id)
+        }
+        else {
+            apolloClient.mutate(
+                {
+                    mutation: FAV,
+                    variables: {
+                        food_id: id
+                    }
+                }
+            );
+            isFav.value = true;
+        }
     }
     else {
-        apolloClient.mutate(
-            {
-                mutation: FAV,
-                variables: {
-                    food_id: id
-                }
-            }
-        );
-        isFav.value = true;
+        location.replace("/login");
     }
 }
 const like_icon = (id) => {
-    // check if it was in the favorite list
-    //TODO: delete tttttt
-    if (isLiked.value) {
-        apolloClient.mutate(
-            {
-                mutation: UNLIKE,
-                variables: {
-                    food_id: id
+
+    if (LoggedIn) {
+        if (isLiked.value) {
+            apolloClient.mutate(
+                {
+                    mutation: UNLIKE,
+                    variables: {
+                        food_id: id
+                    }
                 }
-            }
-        );
-        isLiked.value = false;
-        total_likes.value--
+            );
+            isLiked.value = false;
+            total_likes.value--
+        }
+        else {
+            apolloClient.mutate(
+                {
+                    mutation: LIKE,
+                    variables: {
+                        food_id: id
+                    }
+                }
+            );
+            isLiked.value = true;
+            total_likes.value++;
+        }
     }
     else {
-        apolloClient.mutate(
-            {
-                mutation: LIKE,
-                variables: {
-                    food_id: id
-                }
-            }
-        );
-        isLiked.value = true;
-        total_likes.value++;
+        location.replace("/login");
     }
 }
 
@@ -116,7 +126,7 @@ const like_icon = (id) => {
                 </svg>
             </div>
             <div class="flex justify-start items-center">
-                <div class="break-normal w-full h-24 mb- description">
+                <div class="w-full h-24 line-clamp-4 text-sm">
                     {{food.description}}
                 </div>
             </div>
@@ -143,7 +153,7 @@ const like_icon = (id) => {
                     </div>
                 </div> -->
                 <div class="font-semibold capitalize">
-                    <div v-if="this.$route.path!=='/my_foods'"><i class="font-regular">{{food.user.name}}</i></div>
+                    <div v-if="this.$route.path!=='/my_foods'"><i class="font-regular text-sm">{{food.user.name}}</i></div>
                     <div v-if="this.$route.path==='/my_foods'" class="flex justify-end space-x-3">
                         <div>
                             <router-link :to="'/edit_recipe/'+ food.id">
@@ -205,7 +215,7 @@ const like_icon = (id) => {
                         </div>
                     </div>
                     <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                         <button type="button" @click="DeleteFood(food.id)"
+                        <button type="button" @click="DeleteFood(food.id)"
                             class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
                             Delete
                         </button>

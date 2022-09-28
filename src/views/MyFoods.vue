@@ -20,7 +20,6 @@ const { onResult } = useQuery(
 )
 
 onResult(({ data }) => {
-    console.log(data)
     savedFoods.value = data.foods;
 })
 

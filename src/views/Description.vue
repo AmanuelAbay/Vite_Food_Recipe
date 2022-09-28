@@ -68,20 +68,28 @@ export default {
             </p>
 
             <!-- rating and category section -->
-            <div class="flex justify-between items-center mr-6 font-bold mt-3 border-b border-gray-400 pb-10">
-                <div class="pl-1 uppercase">{{food?.category}}</div>
+            <div class="flex justify-end items-center mr-6 font-bold mt-3 border-b border-gray-400 pb-10">
+                <div class="pl-1 uppercase">
+                    <span
+                        class="px-4 py-2 rounded-full text-main_background bg-primary font-semibold text-sm flex align-center w-max cursor-pointer active:bg-gray-300 transition duration-300 ease">
+                        {{food?.category}}
+                    </span>
+                </div>
             </div>
         </div>
         <div class="flex flex-col pl-20 py-5 space-y-3">
-            <label for="ingredients" class="block mb-2 font-bold text-xl uppercase">ingredients</label>
-            <ul class="flex flex-col  pl-20 list-disc space-y-4">
-                <li class="uppercase text-base" v-for="ingredient in food?.ingredients" :key="ingredient.id">
+            <label for="ingredients"
+                class="block mb-2 font-bold text-xl uppercase border-solid border-l-4 w-fit pl-5 border-primary ">ingredients</label>
+            <ul class="flex flex-col  pl-20 list-disc space-y-4 marker:text-primary">
+                <li class="text-base" v-for="ingredient in food?.ingredients" :key="ingredient.id">
                     {{ingredient.name}} Amount {{ingredient.amount}}<i>gram</i></li>
             </ul>
         </div>
         <div class="flex flex-col pl-20 space-y-3 pt-5">
-            <label for="ingredients" class="block mb-2 font-bold text-xl uppercase">necessary Steps</label>
-            <ul class="space-y-3 px-20 list-disc">
+            <label for="ingredients"
+                class="block mb-2 font-bold text-xl uppercase border-solid border-l-4 w-fit pl-5 border-primary">necessary
+                Steps</label>
+            <ul class="space-y-3 px-20 list-disc marker:text-primary">
                 <li class="text-base list-decimal pl-1" v-for="step in food?.steps" :key="step.step_number">
                     {{step.description}}</li>
             </ul>

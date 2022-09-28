@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .card {
-  @apply bg-white rounded overflow-hidden shadow-lg relative;
+  @apply bg-white rounded overflow-hidden shadow-3xl relative;
 }
 
 .tag {

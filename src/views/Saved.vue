@@ -10,7 +10,7 @@ import { userId } from '../utils/user';
 const savedFoods = ref([]);
 const saved = ref([]);
 
-const { onResult } = useQuery(
+const { onResult, refetch } = useQuery(
     FAVORITE_FOOD,
     () => ({
         user_id: userId
@@ -26,9 +26,10 @@ onResult(({ data }) => {
 })
 
 const removeFavorite = (id) => {
-    console.log("removed");
+    // console.log("removed");
     saved.value = savedFoods.value.filter((favorite) => favorite.food.id != id);
-    console.log(savedFoods.value);
+    // refetch();
+    // console.log(savedFoods.value);
 }
 
 </script>
